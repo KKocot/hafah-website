@@ -187,6 +187,7 @@ const steps = [
     border: 1px solid var(--color-border-subtle);
     border-radius: 0.75rem; /* 12px */
     padding: 2rem; /* 32px */
+    overflow: hidden;
   }
 
   /* -------------------------------------------------- */
@@ -224,10 +225,12 @@ const steps = [
   /*  Code block                                         */
   /* -------------------------------------------------- */
   .qs__code-wrap {
+    position: relative;
     overflow-x: auto;
+    max-width: 100%;
     border-radius: 0.5rem; /* 8px */
     border: 1px solid var(--color-border-subtle);
-    background-color: var(--color-bg-primary);
+    background-color: var(--color-bg-card);
   }
 
   .qs__code {
@@ -311,5 +314,6 @@ const steps = [
     .qs__number {
       font-size: 2.25rem; /* 36px */
     }
+
   }
 </style>
