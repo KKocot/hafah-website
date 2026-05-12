@@ -28,7 +28,8 @@ const gitlabUrl = 'https://gitlab.syncad.com/hive/hafah';
         navLinks.map((link) => (
           <a
             href={link.href}
-            class="text-sm text-text-secondary transition-colors duration-200 hover:text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-accent"
+            data-section={link.href.replace('#', '')}
+            class="nav-link border-b-2 border-transparent text-sm text-text-secondary transition-colors duration-200 hover:text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-accent"
           >
             {link.label}
           </a>
@@ -86,7 +87,8 @@ const gitlabUrl = 'https://gitlab.syncad.com/hive/hafah';
         navLinks.map((link) => (
           <a
             href={link.href}
-            class="mobile-nav-link rounded-lg px-3 py-2.5 text-sm text-text-secondary transition-colors duration-200 hover:bg-bg-card hover:text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-accent"
+            data-section={link.href.replace('#', '')}
+            class="mobile-nav-link nav-link rounded-lg px-3 py-2.5 text-sm text-text-secondary transition-colors duration-200 hover:bg-bg-card hover:text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-accent"
           >
             {link.label}
           </a>
@@ -130,5 +132,69 @@ const gitlabUrl = 'https://gitlab.syncad.com/hive/hafah';
         closeIcon.classList.add('hidden');
       });
     });
+  }
+
+  // Active section highlighting via IntersectionObserver
+  const nav = document.querySelector('nav');
+  const allNavLinks = document.querySelectorAll<HTMLAnchorElement>('a.nav-link[data-section]');
+  const sectionIds = ['features', 'architecture', 'api', 'quick-start'];
+  const sections = sectionIds
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => el !== null);
+
+  const ACTIVE_CLASSES = ['text-accent', 'border-accent'];
+  const INACTIVE_CLASSES = ['text-text-secondary', 'border-transparent'];
+
+  function setActiveSection(sectionId: string) {
+    allNavLinks.forEach((link) => {
+      const isMatch = link.dataset.section === sectionId;
+      if (isMatch) {
+        link.classList.remove(...INACTIVE_CLASSES);
+        link.classList.add(...ACTIVE_CLASSES);
+      } else {
+        link.classList.remove(...ACTIVE_CLASSES);
+        link.classList.add(...INACTIVE_CLASSES);
+      }
+    });
+  }
+
+  function clearActiveSection() {
+    allNavLinks.forEach((link) => {
+      link.classList.remove(...ACTIVE_CLASSES);
+      link.classList.add(...INACTIVE_CLASSES);
+    });
+  }
+
+  if (nav && sections.length > 0) {
+    const navHeight = nav.offsetHeight;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the topmost currently-intersecting section
+        const visibleEntries = entries.filter((e) => e.isIntersecting);
+        if (visibleEntries.length > 0) {
+          // Pick the one closest to the top of the viewport
+          const topmost = visibleEntries.reduce((a, b) =>
+            a.boundingClientRect.top < b.boundingClientRect.top ? a : b,
+          );
+          setActiveSection(topmost.target.id);
+        } else {
+          // Check if any observed section is still in view (entries only has changed ones)
+          const anyVisible = sections.some((section) => {
+            const rect = section.getBoundingClientRect();
+            return rect.top < window.innerHeight * 0.6 && rect.bottom > navHeight;
+          });
+          if (!anyVisible) {
+            clearActiveSection();
+          }
+        }
+      },
+      {
+        rootMargin: `-${navHeight}px 0px -40% 0px`,
+        threshold: 0,
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
   }
 </script>
