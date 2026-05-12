@@ -2,8 +2,8 @@
 ---
 
 <section class="hero">
+  <div class="hero__head-block" aria-hidden="true"></div>
   <div class="hero__glow" aria-hidden="true"></div>
-  <div class="hero__grid" aria-hidden="true"></div>
 
   <div class="hero__content">
     <span class="hero__badge anim anim--0">
@@ -54,6 +54,19 @@
     }
   }
 
+  @keyframes headBlockPulse {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.3;
+      box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.15);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.3);
+      opacity: 0.6;
+      box-shadow: 0 0 12px 4px rgba(245, 158, 11, 0.1);
+    }
+  }
+
   @keyframes shimmer {
     0%, 100% { transform: translateX(-100%); }
     50% { transform: translateX(100%); }
@@ -63,12 +76,6 @@
     0% { background-position: 0% center; }
     50% { background-position: 100% center; }
     100% { background-position: 0% center; }
-  }
-
-  @keyframes movingDots {
-    0% { transform: translateX(-4px); opacity: 0.2; }
-    50% { opacity: 0.6; }
-    100% { transform: translateX(4px); opacity: 0.2; }
   }
 
   /* -------------------------------------------------- */
@@ -97,59 +104,94 @@
     overflow: hidden;
   }
 
-  /* -------------------------------------------------- */
-  /*  Grid pattern background                           */
-  /* -------------------------------------------------- */
-  .hero__grid {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 49px,
-        rgba(245, 158, 11, 0.08) 49px,
-        rgba(245, 158, 11, 0.08) 51px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 49px,
-        rgba(245, 158, 11, 0.08) 49px,
-        rgba(245, 158, 11, 0.08) 51px
-      );
-    background-size: 50px 50px;
-    pointer-events: none;
-  }
-
-  /* Grid dots */
-  .hero__grid::before {
+  /* Warstwa 1: Pionowa linia timeline + poziome branches przechodzace przez viewport */
+  .hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(245, 158, 11, 0.3) 2px, transparent 2px);
-    background-size: 50px 50px;
+    z-index: 0;
+    background:
+      /* Pionowa linia timeline */
+      linear-gradient(to bottom, transparent 0%, rgba(245, 158, 11, 0.3) 10%, rgba(245, 158, 11, 0.3) 90%, transparent 100%)
+        15% 0 / 2px 100% no-repeat,
+
+      /* Dluga branch 1 */
+      linear-gradient(to right, transparent 0%, rgba(245, 158, 11, 0.25) 15%, rgba(245, 158, 11, 0.15) 50%, transparent 85%)
+        0 8% / 100% 2px no-repeat,
+
+      /* Dluga branch 2 */
+      linear-gradient(to right, transparent 0%, rgba(245, 158, 11, 0.3) 15%, rgba(245, 158, 11, 0.2) 60%, transparent 90%)
+        0 34% / 100% 2px no-repeat,
+
+      /* Krotsza branch 2b */
+      linear-gradient(to right, transparent 0%, rgba(245, 158, 11, 0.2) 15%, rgba(245, 158, 11, 0.12) 40%, transparent 55%)
+        0 37% / 100% 2px no-repeat,
+
+      /* Dluga branch 3 */
+      linear-gradient(to right, transparent 0%, rgba(245, 158, 11, 0.25) 15%, rgba(245, 158, 11, 0.15) 55%, transparent 80%)
+        0 60% / 100% 2px no-repeat,
+
+      /* Dluga branch 4 — head block, najjasniejsza */
+      linear-gradient(to right, transparent 0%, rgba(245, 158, 11, 0.35) 15%, rgba(245, 158, 11, 0.25) 65%, transparent 95%)
+        0 92% / 100% 3px no-repeat;
+
     pointer-events: none;
-    animation: movingDots 6s ease-in-out infinite;
+  }
+
+  /* Warstwa 2: Block nodes */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      /* Node 1 */
+      radial-gradient(circle 8px at 15% 8%, rgba(245, 158, 11, 0.5) 40%, transparent 60%),
+      /* Node 2 */
+      radial-gradient(circle 8px at 15% 34%, rgba(245, 158, 11, 0.5) 40%, transparent 60%),
+      /* Node 3 */
+      radial-gradient(circle 8px at 15% 60%, rgba(245, 158, 11, 0.5) 40%, transparent 60%),
+      /* Node 4 — HEAD BLOCK */
+      radial-gradient(circle 12px at 15% 92%, rgba(245, 158, 11, 0.7) 40%, transparent 60%);
+
+    pointer-events: none;
   }
 
   /* -------------------------------------------------- */
-  /*  Ambient glow                                       */
+  /*  Pulsujacy head block                               */
+  /* -------------------------------------------------- */
+  .hero__head-block {
+    position: absolute;
+    left: 15%;
+    top: 92%;
+    width: 16px;
+    height: 16px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(245, 158, 11, 0.2);
+    z-index: 0;
+    pointer-events: none;
+    animation: headBlockPulse 3s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Ambient glow (decorative, statyczny)               */
   /* -------------------------------------------------- */
   .hero__glow {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 40%;
+    left: 45%;
     transform: translate(-50%, -50%);
-    width: min(80vw, 800px);
-    height: min(50vh, 500px);
-    background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.2), transparent 60%);
-    filter: blur(100px);
-    opacity: 0.5;
+    width: min(50vw, 700px);
+    height: min(35vh, 450px);
+    background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.25), transparent 70%);
+    filter: blur(80px);
+    opacity: 0.6;
     pointer-events: none;
     z-index: 0;
   }
+
 
   /* -------------------------------------------------- */
   /*  Content wrapper                                    */
@@ -309,8 +351,11 @@
       opacity: 1;
       animation: none;
     }
-    .hero__grid::before {
+    .hero__head-block {
       animation: none;
+      opacity: 0.5;
+      transform: translate(-50%, -50%) scale(1);
+      box-shadow: 0 0 8px 2px rgba(245, 158, 11, 0.1);
     }
     .hero__badge::after { animation: none; }
     .hero__title {
@@ -324,6 +369,22 @@
     .hero {
       min-height: 80vh;
       padding: 4rem 1.25rem;
+    }
+
+    .hero::before {
+      left: 8%;
+    }
+
+    .hero::after {
+      background:
+        radial-gradient(circle 5px at 8% 8%, rgba(245, 158, 11, 0.4) 40%, transparent 60%),
+        radial-gradient(circle 5px at 8% 34%, rgba(245, 158, 11, 0.4) 40%, transparent 60%),
+        radial-gradient(circle 5px at 8% 60%, rgba(245, 158, 11, 0.4) 40%, transparent 60%),
+        radial-gradient(circle 8px at 8% 92%, rgba(245, 158, 11, 0.6) 40%, transparent 60%);
+    }
+
+    .hero__head-block {
+      left: 8%;
     }
 
     .hero__glow {
