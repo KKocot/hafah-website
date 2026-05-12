@@ -3,31 +3,32 @@
  * ArchitectureFlow — "How It Works" section.
  * 5-node pipeline: HAF Database -> SQL Functions -> PostgREST -> HTTP API -> Your App
  * Scroll-triggered staggered fade-in via Intersection Observer.
+ * Design: "Glowing Pipeline" — standalone cards with gradient amber connectors.
  */
 
 const nodes = [
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>`,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>`,
     title: 'HAF Database',
     desc: 'Hive blockchain data',
   },
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>`,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>`,
     title: 'SQL Functions',
     desc: 'PL/pgSQL business logic',
   },
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>`,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>`,
     title: 'PostgREST',
     desc: 'HTTP ↔ SQL translation',
   },
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
     title: 'HTTP API',
     desc: 'REST + JSON-RPC endpoints',
   },
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>`,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>`,
     title: 'Your App',
     desc: 'Any HTTP client',
   },
@@ -44,20 +45,35 @@ const nodes = [
       </p>
     </div>
 
-    <!-- Pipeline card -->
-    <div class="arch__card arch-anim">
-      <ol class="arch__pipeline" role="list">
-        {nodes.map((node, index) => (
-          <li
+    <!-- Pipeline -->
+    <div class="arch__pipeline arch-anim" role="list" aria-label="Data pipeline steps">
+      {nodes.map((node, index) => (
+        <>
+          <div
             class="arch__node arch-node-anim"
+            role="listitem"
             style={`--node-index: ${index};`}
           >
-            <div class="arch__icon" aria-hidden="true" set:html={node.icon} />
-            <span class="arch__node-title">{node.title}</span>
-            <span class="arch__node-desc">{node.desc}</span>
-          </li>
-        ))}
-      </ol>
+            <div class="arch__node-card">
+              <div class="arch__icon-wrap">
+                <div class="arch__icon" aria-hidden="true" set:html={node.icon} />
+              </div>
+              <span class="arch__node-title">{node.title}</span>
+              <span class="arch__node-desc">{node.desc}</span>
+            </div>
+          </div>
+
+          {index < nodes.length - 1 && (
+            <div
+              class="arch__connector arch-connector-anim"
+              aria-hidden="true"
+              style={`--connector-index: ${index};`}
+            >
+              <div class="arch__connector-line"></div>
+            </div>
+          )}
+        </>
+      ))}
     </div>
   </div>
 </section>
@@ -70,6 +86,7 @@ const nodes = [
 
     const animTargets = document.querySelectorAll('.arch-anim');
     const nodeTargets = document.querySelectorAll('.arch-node-anim');
+    const connectorTargets = document.querySelectorAll('.arch-connector-anim');
 
     if (prefersReduced) {
       animTargets.forEach((el) => {
@@ -80,10 +97,14 @@ const nodes = [
         (el as HTMLElement).style.opacity = '1';
         (el as HTMLElement).style.transform = 'none';
       });
+      connectorTargets.forEach((el) => {
+        (el as HTMLElement).style.opacity = '1';
+        (el as HTMLElement).style.transform = 'none';
+      });
       return;
     }
 
-    /* Header + card observer */
+    /* Header observer */
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -111,9 +132,17 @@ const nodes = [
               node.style.getPropertyValue('--node-index'),
               10
             );
-            node.style.transitionDelay = `${200 + index * 80}ms`;
+            node.style.transitionDelay = `${200 + index * 100}ms`;
             node.classList.add('arch-node-anim--visible');
             nodeObserver.unobserve(entry.target);
+
+            /* Trigger connector after node appears */
+            const nextConnector = node.nextElementSibling;
+            if (nextConnector && nextConnector.classList.contains('arch-connector-anim')) {
+              setTimeout(() => {
+                nextConnector.classList.add('arch-connector-anim--visible');
+              }, 300 + index * 100);
+            }
           }
         });
       },
@@ -133,7 +162,7 @@ const nodes = [
   /* -------------------------------------------------- */
   .arch-anim {
     opacity: 0;
-    transform: translateY(1.875rem); /* 30px */
+    transform: translateY(1.875rem);
     transition: opacity 500ms ease-out, transform 500ms ease-out;
   }
 
@@ -147,11 +176,34 @@ const nodes = [
   /* -------------------------------------------------- */
   .arch-node-anim {
     opacity: 0;
-    transition: opacity 300ms ease-out;
+    transform: scale(0.95);
+    transition: opacity 400ms ease-out, transform 400ms ease-out;
   }
 
   .arch-node-anim--visible {
     opacity: 1;
+    transform: scale(1);
+  }
+
+  /* -------------------------------------------------- */
+  /*  Animation — connectors                             */
+  /* -------------------------------------------------- */
+  .arch-connector-anim {
+    opacity: 0;
+  }
+
+  .arch-connector-anim .arch__connector-line {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 400ms ease-out;
+  }
+
+  .arch-connector-anim--visible {
+    opacity: 1;
+  }
+
+  .arch-connector-anim--visible .arch__connector-line {
+    transform: scaleX(1);
   }
 
   /* -------------------------------------------------- */
@@ -162,7 +214,7 @@ const nodes = [
   }
 
   .arch__inner {
-    max-width: 56.25rem; /* 900px */
+    max-width: 64rem;
     margin: 0 auto;
   }
 
@@ -189,31 +241,17 @@ const nodes = [
     font-size: clamp(0.9375rem, 1vw + 0.5rem, 1.0625rem);
     color: var(--color-text-secondary);
     line-height: 1.6;
-    max-width: 31.25rem; /* 500px */
+    max-width: 31.25rem;
     margin: 0 auto;
   }
 
   /* -------------------------------------------------- */
-  /*  Pipeline card                                      */
-  /* -------------------------------------------------- */
-  .arch__card {
-    background-color: var(--color-bg-secondary);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: 0.75rem; /* 12px */
-    padding: 2.5rem;
-  }
-
-  /* -------------------------------------------------- */
-  /*  Pipeline list                                      */
+  /*  Pipeline layout                                    */
   /* -------------------------------------------------- */
   .arch__pipeline {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    align-items: stretch;
     gap: 0;
   }
 
@@ -221,26 +259,76 @@ const nodes = [
   /*  Node                                               */
   /* -------------------------------------------------- */
   .arch__node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
     flex: 1;
-    position: relative;
     min-width: 0;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Node card                                          */
+  /* -------------------------------------------------- */
+  .arch__node-card {
+    height: 100%;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 1rem;
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    position: relative;
+    transition: border-color 300ms ease, transform 300ms ease;
+  }
+
+  .arch__node-card:hover {
+    border-color: rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px);
+  }
+
+  /* Ambient glow */
+  .arch__node-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 1rem;
+    background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.08), transparent 70%);
+    filter: blur(20px);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 400ms ease-out;
+    pointer-events: none;
+  }
+
+  .arch__node-card:hover::before {
+    opacity: 1;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Icon wrap                                          */
+  /* -------------------------------------------------- */
+  .arch__icon-wrap {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 0.75rem;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
   }
 
   .arch__icon {
     color: var(--color-accent);
-    width: 1.75rem; /* 28px */
-    height: 1.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.75rem;
   }
 
+  /* -------------------------------------------------- */
+  /*  Node text                                          */
+  /* -------------------------------------------------- */
   .arch__node-title {
+    display: block;
     font-family: var(--font-sans, 'Inter', sans-serif);
     font-size: 1rem;
     font-weight: 600;
@@ -250,83 +338,94 @@ const nodes = [
   }
 
   .arch__node-desc {
+    display: block;
     font-family: var(--font-sans, 'Inter', sans-serif);
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.8125rem;
     font-weight: 400;
     color: var(--color-text-secondary);
     line-height: 1.4;
   }
 
   /* -------------------------------------------------- */
-  /*  Connectors — desktop (horizontal arrows)           */
+  /*  Connectors — desktop (horizontal)                  */
   /* -------------------------------------------------- */
-  .arch__node:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 0.875rem; /* vertically centered on icon (28/2 = 14px) */
-    left: calc(50% + 2rem);
-    width: calc(100% - 4rem);
-    height: 0.125rem; /* 2px */
-    background-color: var(--color-border-medium);
+  .arch__connector {
+    flex: 0 0 auto;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    align-self: center;
   }
 
-  /* Arrow triangle */
-  .arch__node:not(:last-child)::before {
+  .arch__connector-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.5), rgba(245, 158, 11, 0.2));
+    border-radius: 1px;
+    position: relative;
+  }
+
+  /* Arrow chevron */
+  .arch__connector-line::after {
     content: '';
     position: absolute;
-    top: calc(0.875rem - 0.25rem); /* center triangle on line */
-    left: calc(100% - 2rem - 0.375rem);
-    width: 0;
-    height: 0;
-    border-top: 0.3125rem solid transparent; /* 5px */
-    border-bottom: 0.3125rem solid transparent;
-    border-left: 0.375rem solid var(--color-border-medium); /* 6px */
+    right: -1px;
+    top: -3px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--color-accent);
+    border-bottom: 2px solid var(--color-accent);
+    transform: rotate(-45deg);
+    opacity: 0.7;
   }
 
   /* -------------------------------------------------- */
   /*  Responsive — mobile (<768px)                       */
   /* -------------------------------------------------- */
   @media (max-width: 767px) {
-    .arch__card {
-      padding: 2rem 1.5rem;
-    }
-
     .arch__pipeline {
       flex-direction: column;
-      align-items: center;
-      gap: 0;
+      align-items: stretch;
     }
 
     .arch__node {
       flex: none;
       width: 100%;
-      padding-bottom: 2rem;
     }
 
-    .arch__node:last-child {
-      padding-bottom: 0;
+    .arch__connector {
+      width: 100%;
+      height: 2rem;
+      margin-top: 0;
+      align-self: auto;
+      flex-direction: column;
     }
 
-    /* Vertical line */
-    .arch__node:not(:last-child)::after {
+    .arch__connector-line {
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.5), rgba(245, 158, 11, 0.2));
+      margin: 0 auto;
+    }
+
+    /* Vertical arrow chevron */
+    .arch__connector-line::after {
+      right: auto;
       top: auto;
-      left: 50%;
-      bottom: 0;
-      width: 0.125rem;
-      height: 1.5rem;
-      transform: translateX(-50%);
+      bottom: -1px;
+      left: -3px;
+      transform: rotate(45deg);
     }
 
-    /* Vertical arrow triangle */
-    .arch__node:not(:last-child)::before {
-      top: auto;
-      left: 50%;
-      bottom: -0.0625rem;
-      transform: translateX(-50%);
-      border-top: 0.375rem solid var(--color-border-medium);
-      border-bottom: none;
-      border-left: 0.3125rem solid transparent;
-      border-right: 0.3125rem solid transparent;
+    .arch-connector-anim .arch__connector-line {
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+
+    .arch-connector-anim--visible .arch__connector-line {
+      transform: scaleY(1);
     }
   }
 
@@ -337,6 +436,15 @@ const nodes = [
     .arch-anim,
     .arch-node-anim {
       opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .arch-connector-anim {
+      opacity: 1;
+    }
+
+    .arch-connector-anim .arch__connector-line {
       transform: none;
       transition: none;
     }
