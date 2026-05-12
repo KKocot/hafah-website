@@ -1,45 +1,109 @@
 ---
-const links = [
-  { label: 'GitLab', href: 'https://gitlab.syncad.com/hive/hafah' },
-  { label: 'Hive Ecosystem', href: 'https://hive.io' },
-  { label: 'HAF Documentation', href: 'https://gitlab.syncad.com/hive/haf' },
-];
+const currentYear = new Date().getFullYear();
 ---
 
-<footer class="border-t border-border-subtle">
-  <div class="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-12">
-    <!-- Title -->
-    <p class="font-mono text-sm text-text-tertiary">
-      HAfAH — Hive Account History API
-    </p>
-
-    <!-- Links -->
-    <nav
-      class="flex flex-col items-center gap-4 sm:flex-row sm:gap-2"
-      aria-label="Footer navigation"
+<footer class="tmux-status" role="contentinfo">
+  <div class="tmux-status__bar">
+    <span class="tmux-status__segment"
+      ><a
+        href="https://gitlab.syncad.com/hive/hafah"
+        class="tmux-status__link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="hafah — repository on GitLab"
+        >[hafah]</a
+      ></span
+    ><span class="tmux-status__sep" aria-hidden="true">│</span><span
+      class="tmux-status__segment"
+      >&copy; {currentYear}</span
+    ><span class="tmux-status__sep" aria-hidden="true">│</span><a
+      href="https://opensource.org/licenses/MIT"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="tmux-status__link"
+      aria-label="MIT License — opens in new tab"
+      >MIT License</a
+    ><span class="tmux-status__sep" aria-hidden="true">│</span><a
+      href="https://hive.io"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="tmux-status__link"
+      aria-label="Hive blockchain ecosystem — opens in new tab"
+      >built for <span class="tmux-status__hive">hive</span></a
+    ><span class="tmux-status__sep" aria-hidden="true">│</span><span
+      class="tmux-status__dot"
+      aria-label="Status: online">●</span
     >
-      {
-        links.map((link, i) => (
-          <>
-            <a
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-sm text-text-secondary transition-colors duration-200 hover:text-accent focus:outline-2 focus:outline-offset-2 focus:outline-accent"
-            >
-              {link.label}
-            </a>
-            {i < links.length - 1 && (
-              <span class="hidden text-text-tertiary sm:inline" aria-hidden="true">|</span>
-            )}
-          </>
-        ))
-      }
-    </nav>
-
-    <!-- License -->
-    <p class="text-center text-xs text-text-tertiary">
-      MIT License &middot; Part of the HAF ecosystem
-    </p>
   </div>
 </footer>
+
+<style>
+  .tmux-status {
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border-subtle);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--color-text-tertiary);
+    line-height: 1;
+  }
+
+  .tmux-status__bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0.5rem 1rem;
+    min-height: 2rem;
+  }
+
+  .tmux-status__segment {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .tmux-status__sep {
+    color: var(--color-border-subtle);
+    padding-inline: 0.5rem;
+    user-select: none;
+  }
+
+  .tmux-status__link {
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 150ms ease-out;
+  }
+
+  .tmux-status__link:hover,
+  .tmux-status__link:focus-visible {
+    color: var(--color-accent);
+  }
+
+  .tmux-status__link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .tmux-status__hive {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .tmux-status__dot {
+    color: #22c55e;
+    font-size: 0.625rem;
+    line-height: 1;
+  }
+
+  @media (max-width: 40rem) {
+    .tmux-status__bar {
+      padding: 0.5rem 0.75rem;
+      justify-content: center;
+      gap: 0.25rem;
+    }
+  }
+</style>
