@@ -74,6 +74,7 @@ const nodes = [
           )}
         </>
       ))}
+      <div class="arch__global-pulse" aria-hidden="true"></div>
     </div>
   </div>
 </section>
@@ -158,6 +159,24 @@ const nodes = [
 
 <style>
   /* -------------------------------------------------- */
+  /*  Keyframes                                          */
+  /* -------------------------------------------------- */
+  @keyframes dataPulseGlobal {
+    0% { left: 0; opacity: 0; }
+    5% { opacity: 1; }
+    80% { opacity: 1; }
+    85% { left: 82%; opacity: 0; }
+    100% { left: 82%; opacity: 0; }
+  }
+
+  @keyframes dataPulseGlobalVertical {
+    0% { top: 0; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* -------------------------------------------------- */
   /*  Animation — section-level                          */
   /* -------------------------------------------------- */
   .arch-anim {
@@ -206,6 +225,7 @@ const nodes = [
     transform: scaleX(1);
   }
 
+
   /* -------------------------------------------------- */
   /*  Section                                            */
   /* -------------------------------------------------- */
@@ -253,6 +273,7 @@ const nodes = [
     flex-direction: row;
     align-items: stretch;
     gap: 0;
+    position: relative;
   }
 
   /* -------------------------------------------------- */
@@ -261,6 +282,8 @@ const nodes = [
   .arch__node {
     flex: 1;
     min-width: 0;
+    position: relative;
+    z-index: 1;
   }
 
   /* -------------------------------------------------- */
@@ -382,6 +405,24 @@ const nodes = [
   }
 
   /* -------------------------------------------------- */
+  /*  Global data pulse                                  */
+  /* -------------------------------------------------- */
+  .arch__global-pulse {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 12px 3px rgba(245, 158, 11, 0.5);
+    z-index: 0;
+    pointer-events: none;
+    animation: dataPulseGlobal 3.5s ease-in-out infinite;
+  }
+
+  /* -------------------------------------------------- */
   /*  Responsive — mobile (<768px)                       */
   /* -------------------------------------------------- */
   @media (max-width: 767px) {
@@ -419,6 +460,14 @@ const nodes = [
       transform: rotate(45deg);
     }
 
+    .arch__global-pulse {
+      top: 0;
+      left: 50%;
+      margin-top: 0;
+      margin-left: -4px;
+      animation-name: dataPulseGlobalVertical;
+    }
+
     .arch-connector-anim .arch__connector-line {
       transform: scaleY(0);
       transform-origin: top;
@@ -427,6 +476,7 @@ const nodes = [
     .arch-connector-anim--visible .arch__connector-line {
       transform: scaleY(1);
     }
+
   }
 
   /* -------------------------------------------------- */
@@ -447,6 +497,11 @@ const nodes = [
     .arch-connector-anim .arch__connector-line {
       transform: none;
       transition: none;
+    }
+
+    .arch__global-pulse {
+      animation: none;
+      opacity: 0.5;
     }
   }
 </style>
