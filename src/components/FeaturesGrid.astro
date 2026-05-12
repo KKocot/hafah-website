@@ -1,0 +1,172 @@
+---
+const features = [
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>`,
+    title: 'Pure SQL',
+    description: 'Entire business logic in PostgreSQL/PL/pgSQL. No application layer, no middleware — just PostgREST translating HTTP to SQL.',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>`,
+    title: 'Zero Replay',
+    description: 'Deploy in minutes, not days. Reads directly from HAF base tables — no blockchain replay required.',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>`,
+    title: 'Dual API',
+    description: "JSON-RPC 2.0 + REST in a single deployment. Full backwards compatibility with Hive's condenser_api.",
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    title: 'Smart Caching',
+    description: 'Irreversible blocks cached for 1 year. Reversible data refreshed every 2 seconds. Automatic cache strategy.',
+  },
+];
+---
+
+<section id="features" class="features-section">
+  <div class="features-container">
+    <div class="features-header">
+      <h2 class="features-title">Built for Production</h2>
+      <p class="features-subtitle">
+        Everything you need to run a Hive account history node
+      </p>
+    </div>
+
+    <div class="features-grid">
+      {features.map((feature, index) => (
+        <div
+          class="feature-card"
+          style={`transition-delay: ${index * 50}ms;`}
+        >
+          <div class="feature-icon" set:html={feature.icon} />
+          <h3 class="feature-card-title">{feature.title}</h3>
+          <p class="feature-card-description">{feature.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .features-section {
+    padding: 6rem 1.5rem;
+  }
+
+  .features-container {
+    max-width: 56.25rem; /* 900px */
+    margin: 0 auto;
+  }
+
+  .features-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .features-title {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem;
+    line-height: 1.1;
+  }
+
+  .features-subtitle {
+    font-size: 1.0625rem; /* 17px */
+    color: var(--color-text-secondary);
+    max-width: 31.25rem; /* 500px */
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 0.75rem; /* 12px */
+    padding: 2rem;
+    opacity: 0;
+    transform: translateY(1.875rem); /* 30px */
+    transition:
+      opacity 400ms ease-out,
+      transform 400ms ease-out,
+      border-color 300ms ease,
+      box-shadow 300ms ease;
+  }
+
+  .feature-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .feature-card:hover {
+    border-color: var(--color-border-medium);
+    transform: translateY(-0.125rem); /* -2px */
+  }
+
+  .feature-card.animate-in:hover {
+    transform: translateY(-0.125rem);
+  }
+
+  .feature-icon {
+    color: var(--color-accent);
+    margin-bottom: 1rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .feature-card-title {
+    font-size: 1.375rem; /* 22px */
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 0.75rem;
+    line-height: 1.2;
+  }
+
+  .feature-card-description {
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-card {
+      opacity: 1;
+      transform: none;
+      transition:
+        border-color 300ms ease,
+        box-shadow 300ms ease;
+    }
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll('.feature-card').forEach((card) => observer.observe(card));
+</script>

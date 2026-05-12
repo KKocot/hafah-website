@@ -1,0 +1,770 @@
+---
+/**
+ * ApiShowcase — interactive split-panel API reference section.
+ * Tab switcher (REST / JSON-RPC) + endpoint list + live code preview.
+ */
+
+const restEndpoints = [
+  {
+    method: 'GET',
+    path: '/blocks/{block-num}',
+    title: 'Get Block',
+    desc: 'Full block with transactions and operations',
+    curl: 'curl http://localhost:3000/hafah-api/blocks/1',
+    response: `{
+  "block_num": 1,
+  "previous": "0000000000000000000000000000000000000000",
+  "timestamp": "2016-03-24T16:05:00",
+  "witness": "initminer",
+  "transactions": [...]
+}`,
+  },
+  {
+    method: 'GET',
+    path: '/blocks/{block-num}/header',
+    title: 'Get Block Header',
+    desc: 'Block header without transactions',
+    curl: 'curl http://localhost:3000/hafah-api/blocks/1/header',
+    response: `{
+  "previous": "0000000000000000000000000000000000000000",
+  "timestamp": "2016-03-24T16:05:00",
+  "witness": "initminer"
+}`,
+  },
+  {
+    method: 'GET',
+    path: '/accounts/{name}/operations',
+    title: 'Account Operations',
+    desc: 'Operation history for a specific account',
+    curl: 'curl "http://localhost:3000/hafah-api/accounts/blocktrades/operations?page-size=2"',
+    response: `{
+  "total_operations": 1234567,
+  "total_pages": 1235,
+  "operations": [
+    {
+      "operation_id": 1234567,
+      "block_num": 80000000,
+      "type": "transfer_operation",
+      "body": { ... }
+    }
+  ]
+}`,
+  },
+  {
+    method: 'GET',
+    path: '/transactions/{trx-hash}',
+    title: 'Get Transaction',
+    desc: 'Transaction by hash ID',
+    curl: 'curl http://localhost:3000/hafah-api/transactions/abc123...',
+    response: `{
+  "transaction_id": "abc123...",
+  "block_num": 80000000,
+  "operations": [...]
+}`,
+  },
+  {
+    method: 'GET',
+    path: '/operations',
+    title: 'Search Operations',
+    desc: 'Operations in a block range',
+    curl: 'curl "http://localhost:3000/hafah-api/operations?from-block=1&to-block=100"',
+    response: `{
+  "operations": [...],
+  "next_block_range_begin": 101
+}`,
+  },
+  {
+    method: 'GET',
+    path: '/head-block',
+    title: 'Head Block',
+    desc: 'Current head block number',
+    curl: 'curl http://localhost:3000/hafah-api/head-block',
+    response: `{
+  "head_block_number": 80123456
+}`,
+  },
+  {
+    method: 'GET',
+    path: '/version',
+    title: 'API Version',
+    desc: 'HAfAH version information',
+    curl: 'curl http://localhost:3000/hafah-api/version',
+    response: `{
+  "version": "1.28.0",
+  "haf_version": "1.28.0"
+}`,
+  },
+];
+
+const rpcEndpoints = [
+  {
+    method: 'POST',
+    path: 'account_history_api.get_account_history',
+    title: 'Get Account History',
+    desc: 'Operations for an account with pagination',
+    curl: `curl -X POST http://localhost:3000/ \\
+  -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","method":"account_history_api.get_account_history","params":{"account":"blocktrades","start":-1,"limit":2},"id":1}'`,
+    response: `{
+  "jsonrpc": "2.0",
+  "result": {
+    "history": [
+      [12345, { "trx_id": "abc...", "block": 80000000, "op": [...] }]
+    ]
+  },
+  "id": 1
+}`,
+  },
+  {
+    method: 'POST',
+    path: 'block_api.get_block',
+    title: 'Get Block (RPC)',
+    desc: 'Full block via JSON-RPC',
+    curl: `curl -X POST http://localhost:3000/ \\
+  -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","method":"block_api.get_block","params":{"block_num":1},"id":1}'`,
+    response: `{
+  "jsonrpc": "2.0",
+  "result": { "block": { ... } },
+  "id": 1
+}`,
+  },
+  {
+    method: 'POST',
+    path: 'account_history_api.get_ops_in_block',
+    title: 'Get Ops in Block',
+    desc: 'All operations in a specific block',
+    curl: `curl -X POST http://localhost:3000/ \\
+  -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","method":"account_history_api.get_ops_in_block","params":{"block_num":1,"only_virtual":false},"id":1}'`,
+    response: `{
+  "jsonrpc": "2.0",
+  "result": { "ops": [...] },
+  "id": 1
+}`,
+  },
+  {
+    method: 'POST',
+    path: 'account_history_api.get_transaction',
+    title: 'Get Transaction (RPC)',
+    desc: 'Transaction by hash',
+    curl: `curl -X POST http://localhost:3000/ \\
+  -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","method":"account_history_api.get_transaction","params":{"id":"abc123..."},"id":1}'`,
+    response: `{
+  "jsonrpc": "2.0",
+  "result": { ... },
+  "id": 1
+}`,
+  },
+  {
+    method: 'POST',
+    path: 'hive_api.get_version',
+    title: 'Get Version (RPC)',
+    desc: 'API version information',
+    curl: `curl -X POST http://localhost:3000/ \\
+  -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","method":"hive_api.get_version","id":1}'`,
+    response: `{
+  "jsonrpc": "2.0",
+  "result": { "version": "1.28.0" },
+  "id": 1
+}`,
+  },
+];
+---
+
+<section id="api" class="api">
+  <div class="api__inner">
+    <!-- Header -->
+    <div class="api__header api-anim">
+      <h2 class="api__title">API Reference</h2>
+      <p class="api__subtitle">21 endpoints, two protocols, one deployment</p>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="api__tabs-wrap api-anim" role="tablist" aria-label="API protocol">
+      <button
+        role="tab"
+        id="tab-rest"
+        class="api__tab is-active"
+        aria-selected="true"
+        aria-controls="panel-rest"
+        data-protocol="rest"
+      >REST</button>
+      <button
+        role="tab"
+        id="tab-rpc"
+        class="api__tab"
+        aria-selected="false"
+        aria-controls="panel-rpc"
+        data-protocol="rpc"
+      >JSON-RPC</button>
+    </div>
+
+    <!-- REST panel -->
+    <div
+      id="panel-rest"
+      role="tabpanel"
+      aria-labelledby="tab-rest"
+      class="api__panel api-anim"
+    >
+      <div class="api__split">
+        <!-- Endpoint list -->
+        <div class="api__list" role="listbox" aria-label="REST endpoints">
+          {restEndpoints.map((ep, i) => (
+            <button
+              class={`api__endpoint${i === 0 ? ' is-active' : ''}`}
+              role="option"
+              aria-selected={i === 0 ? 'true' : 'false'}
+              data-index={i}
+              data-protocol="rest"
+            >
+              <span class={`api__method api__method--${ep.method.toLowerCase()}`}>
+                {ep.method}
+              </span>
+              <span class="api__path">{ep.path}</span>
+            </button>
+          ))}
+        </div>
+
+        <!-- Preview -->
+        <div class="api__preview" aria-live="polite">
+          <h3 class="api__preview-title">{restEndpoints[0].title}</h3>
+          <p class="api__preview-desc">{restEndpoints[0].desc}</p>
+
+          <span class="api__preview-label">Request:</span>
+          <div class="api__code-block">
+            <pre class="api__code"><code>{restEndpoints[0].curl}</code></pre>
+          </div>
+
+          <span class="api__preview-label">Response:</span>
+          <div class="api__code-block">
+            <pre class="api__code"><code>{restEndpoints[0].response}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON-RPC panel -->
+    <div
+      id="panel-rpc"
+      role="tabpanel"
+      aria-labelledby="tab-rpc"
+      class="api__panel hidden"
+    >
+      <div class="api__split">
+        <!-- Endpoint list -->
+        <div class="api__list" role="listbox" aria-label="JSON-RPC endpoints">
+          {rpcEndpoints.map((ep, i) => (
+            <button
+              class={`api__endpoint${i === 0 ? ' is-active' : ''}`}
+              role="option"
+              aria-selected={i === 0 ? 'true' : 'false'}
+              data-index={i}
+              data-protocol="rpc"
+            >
+              <span class={`api__method api__method--${ep.method.toLowerCase()}`}>
+                {ep.method}
+              </span>
+              <span class="api__path">{ep.path}</span>
+            </button>
+          ))}
+        </div>
+
+        <!-- Preview -->
+        <div class="api__preview" aria-live="polite">
+          <h3 class="api__preview-title">{rpcEndpoints[0].title}</h3>
+          <p class="api__preview-desc">{rpcEndpoints[0].desc}</p>
+
+          <span class="api__preview-label">Request:</span>
+          <div class="api__code-block">
+            <pre class="api__code"><code>{rpcEndpoints[0].curl}</code></pre>
+          </div>
+
+          <span class="api__preview-label">Response:</span>
+          <div class="api__code-block">
+            <pre class="api__code"><code>{rpcEndpoints[0].response}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="api__cta api-anim">
+      <a
+        href="https://gitlab.syncad.com/hive/hafah/-/blob/develop/README.md"
+        class="api__cta-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View full API documentation &rarr;
+      </a>
+    </div>
+  </div>
+</section>
+
+<script define:vars={{ restEndpoints, rpcEndpoints }}>
+  // Serialized endpoint data from frontmatter
+  window.__apiData = { rest: restEndpoints, rpc: rpcEndpoints };
+</script>
+
+<script>
+  function initApiShowcase() {
+    const data = (window as any).__apiData as {
+      rest: Array<{ method: string; path: string; title: string; desc: string; curl: string; response: string }>;
+      rpc: Array<{ method: string; path: string; title: string; desc: string; curl: string; response: string }>;
+    };
+    if (!data) return;
+
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.api__tab');
+    const panels = document.querySelectorAll<HTMLDivElement>('.api__panel');
+
+    // ---- Tab switching ----
+    function activateTab(protocol: string) {
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.protocol === protocol;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+      });
+
+      panels.forEach((panel) => {
+        const panelId = panel.id; // panel-rest or panel-rpc
+        const matches = (protocol === 'rest' && panelId === 'panel-rest') ||
+                        (protocol === 'rpc' && panelId === 'panel-rpc');
+        panel.classList.toggle('hidden', !matches);
+      });
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        activateTab(tab.dataset.protocol!);
+      });
+
+      tab.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          const next = tab.dataset.protocol === 'rest' ? 'rpc' : 'rest';
+          activateTab(next);
+          document.querySelector<HTMLButtonElement>(`.api__tab[data-protocol="${next}"]`)?.focus();
+        }
+      });
+    });
+
+    // ---- Endpoint selection ----
+    function selectEndpoint(panel: HTMLDivElement, index: number, protocol: string) {
+      const endpoints = data[protocol as 'rest' | 'rpc'];
+      if (!endpoints || !endpoints[index]) return;
+
+      const ep = endpoints[index];
+      const preview = panel.querySelector('.api__preview');
+      if (!preview) return;
+
+      // Update preview content
+      const titleEl = preview.querySelector('.api__preview-title');
+      const descEl = preview.querySelector('.api__preview-desc');
+      const codeBlocks = preview.querySelectorAll('.api__code code');
+
+      if (titleEl) titleEl.textContent = ep.title;
+      if (descEl) descEl.textContent = ep.desc;
+      if (codeBlocks[0]) codeBlocks[0].textContent = ep.curl;
+      if (codeBlocks[1]) codeBlocks[1].textContent = ep.response;
+
+      // Toggle active state on buttons
+      const buttons = panel.querySelectorAll<HTMLButtonElement>('.api__endpoint');
+      buttons.forEach((btn, i) => {
+        const isActive = i === index;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-selected', String(isActive));
+      });
+    }
+
+    panels.forEach((panel) => {
+      const protocol = panel.id === 'panel-rest' ? 'rest' : 'rpc';
+      const buttons = panel.querySelectorAll<HTMLButtonElement>('.api__endpoint');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          selectEndpoint(panel, Number(btn.dataset.index), protocol);
+        });
+
+        btn.addEventListener('keydown', (e) => {
+          const currentIndex = Number(btn.dataset.index);
+          const max = buttons.length - 1;
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = Math.min(currentIndex + 1, max);
+            buttons[next].focus();
+            selectEndpoint(panel, next, protocol);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = Math.max(currentIndex - 1, 0);
+            buttons[prev].focus();
+            selectEndpoint(panel, prev, protocol);
+          }
+        });
+      });
+    });
+
+    // ---- Scroll animations ----
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animTargets = document.querySelectorAll<HTMLElement>('.api-anim');
+
+    if (prefersReduced) {
+      animTargets.forEach((el) => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).classList.add('api-anim--visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    animTargets.forEach((el, i) => {
+      el.style.transitionDelay = `${i * 80}ms`;
+      observer.observe(el);
+    });
+  }
+
+  initApiShowcase();
+  document.addEventListener('astro:after-swap', initApiShowcase);
+</script>
+
+<style>
+  /* -------------------------------------------------- */
+  /*  Animation                                          */
+  /* -------------------------------------------------- */
+  .api-anim {
+    opacity: 0;
+    transform: translateY(1.875rem);
+    transition: opacity 500ms ease-out, transform 500ms ease-out;
+  }
+
+  .api-anim--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* -------------------------------------------------- */
+  /*  Section                                            */
+  /* -------------------------------------------------- */
+  .api {
+    background-color: var(--color-bg-primary);
+    padding: 6rem 1.5rem;
+  }
+
+  .api__inner {
+    max-width: 56.25rem; /* 900px */
+    margin: 0 auto;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Header                                             */
+  /* -------------------------------------------------- */
+  .api__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .api__title {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: clamp(1.75rem, 3vw + 0.5rem, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem;
+  }
+
+  .api__subtitle {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: clamp(0.9375rem, 1vw + 0.5rem, 1.0625rem);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    max-width: 31.25rem;
+    margin: 0 auto;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Tab switcher                                       */
+  /* -------------------------------------------------- */
+  .api__tabs-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 9999px;
+    padding: 0.25rem; /* 4px */
+    width: fit-content;
+    margin: 0 auto 2rem;
+  }
+
+  .api__tab {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.875rem; /* 14px */
+    font-weight: 400;
+    padding: 0.5rem 1.25rem; /* 8px 20px */
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color 200ms ease, color 200ms ease;
+    line-height: 1.4;
+  }
+
+  .api__tab:hover {
+    color: var(--color-text-primary);
+  }
+
+  .api__tab:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .api__tab.is-active {
+    background-color: var(--color-accent);
+    color: var(--color-bg-primary);
+    font-weight: 600;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Panel                                              */
+  /* -------------------------------------------------- */
+  .api__panel {
+    margin-bottom: 0;
+  }
+
+  .api__panel.hidden {
+    display: none;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Split layout                                       */
+  /* -------------------------------------------------- */
+  .api__split {
+    display: flex;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 0.75rem; /* 12px */
+    overflow: hidden;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Endpoint list (left)                               */
+  /* -------------------------------------------------- */
+  .api__list {
+    width: 17.5rem; /* 280px */
+    flex-shrink: 0;
+    background-color: var(--color-bg-secondary);
+    border-right: 1px solid var(--color-border-subtle);
+    max-height: 25rem; /* 400px */
+    overflow-y: auto;
+  }
+
+  .api__endpoint {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem; /* 10px */
+    width: 100%;
+    padding: 0.75rem 1rem; /* 12px 16px */
+    border: none;
+    border-left: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+
+  .api__endpoint:hover {
+    background-color: var(--color-bg-card-hover);
+  }
+
+  .api__endpoint:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+
+  .api__endpoint.is-active {
+    border-left-color: var(--color-accent);
+    background-color: var(--color-bg-card);
+  }
+
+  /* -------------------------------------------------- */
+  /*  Method badge                                       */
+  /* -------------------------------------------------- */
+  .api__method {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.125rem 0.375rem; /* 2px 6px */
+    border-radius: 0.25rem; /* 4px */
+    line-height: 1.4;
+    flex-shrink: 0;
+  }
+
+  .api__method--get {
+    color: #22C55E;
+    background-color: rgba(34, 197, 94, 0.1);
+  }
+
+  .api__method--post {
+    color: #3B82F6;
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+
+  /* -------------------------------------------------- */
+  /*  Path                                               */
+  /* -------------------------------------------------- */
+  .api__path {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.8125rem; /* 13px */
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Preview panel (right)                              */
+  /* -------------------------------------------------- */
+  .api__preview {
+    flex: 1;
+    min-width: 0;
+    padding: 1.5rem; /* 24px */
+    background-color: var(--color-bg-primary);
+  }
+
+  .api__preview-title {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 0.25rem;
+    line-height: 1.3;
+  }
+
+  .api__preview-desc {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.875rem; /* 14px */
+    color: var(--color-text-secondary);
+    margin: 0 0 1rem;
+    line-height: 1.5;
+  }
+
+  .api__preview-label {
+    display: block;
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.75rem; /* 12px */
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin-bottom: 0.5rem; /* 8px */
+  }
+
+  /* -------------------------------------------------- */
+  /*  Code blocks                                        */
+  /* -------------------------------------------------- */
+  .api__code-block {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 0.5rem; /* 8px */
+    overflow-x: auto;
+    margin-bottom: 0.75rem; /* 12px */
+  }
+
+  .api__code {
+    display: block;
+    padding: 1rem; /* 16px */
+    margin: 0;
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.6;
+    color: var(--color-text-primary);
+    white-space: pre;
+  }
+
+  .api__code code {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  /* -------------------------------------------------- */
+  /*  CTA                                                */
+  /* -------------------------------------------------- */
+  .api__cta {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  .api__cta-link {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.875rem; /* 14px */
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 200ms ease;
+  }
+
+  .api__cta-link:hover {
+    color: var(--color-accent-hover);
+  }
+
+  .api__cta-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Responsive — mobile                                */
+  /* -------------------------------------------------- */
+  @media (max-width: 768px) {
+    .api {
+      padding: 4rem 1.25rem;
+    }
+
+    .api__split {
+      flex-direction: column;
+    }
+
+    .api__list {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid var(--color-border-subtle);
+      max-height: 15rem; /* shorter on mobile */
+    }
+
+    .api__preview {
+      padding: 1.25rem;
+    }
+
+    .api__path {
+      font-size: 0.75rem; /* 12px */
+    }
+  }
+
+  /* -------------------------------------------------- */
+  /*  Reduced motion                                     */
+  /* -------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .api-anim {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,344 @@
+---
+/**
+ * ArchitectureFlow — "How It Works" section.
+ * 5-node pipeline: HAF Database -> SQL Functions -> PostgREST -> HTTP API -> Your App
+ * Scroll-triggered staggered fade-in via Intersection Observer.
+ */
+
+const nodes = [
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>`,
+    title: 'HAF Database',
+    desc: 'Hive blockchain data',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>`,
+    title: 'SQL Functions',
+    desc: 'PL/pgSQL business logic',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>`,
+    title: 'PostgREST',
+    desc: 'HTTP ↔ SQL translation',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+    title: 'HTTP API',
+    desc: 'REST + JSON-RPC endpoints',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>`,
+    title: 'Your App',
+    desc: 'Any HTTP client',
+  },
+];
+---
+
+<section id="architecture" class="arch" aria-labelledby="arch-heading">
+  <div class="arch__inner">
+    <!-- Header -->
+    <div class="arch__header arch-anim">
+      <h2 id="arch-heading" class="arch__title">How It Works</h2>
+      <p class="arch__subtitle">
+        Data flows from the Hive blockchain to your application
+      </p>
+    </div>
+
+    <!-- Pipeline card -->
+    <div class="arch__card arch-anim">
+      <ol class="arch__pipeline" role="list">
+        {nodes.map((node, index) => (
+          <li
+            class="arch__node arch-node-anim"
+            style={`--node-index: ${index};`}
+          >
+            <div class="arch__icon" aria-hidden="true" set:html={node.icon} />
+            <span class="arch__node-title">{node.title}</span>
+            <span class="arch__node-desc">{node.desc}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initArchitectureObserver() {
+    const prefersReduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    const animTargets = document.querySelectorAll('.arch-anim');
+    const nodeTargets = document.querySelectorAll('.arch-node-anim');
+
+    if (prefersReduced) {
+      animTargets.forEach((el) => {
+        (el as HTMLElement).style.opacity = '1';
+        (el as HTMLElement).style.transform = 'none';
+      });
+      nodeTargets.forEach((el) => {
+        (el as HTMLElement).style.opacity = '1';
+        (el as HTMLElement).style.transform = 'none';
+      });
+      return;
+    }
+
+    /* Header + card observer */
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).classList.add('arch-anim--visible');
+            sectionObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    animTargets.forEach((el, i) => {
+      (el as HTMLElement).style.transitionDelay = `${i * 100}ms`;
+      sectionObserver.observe(el);
+    });
+
+    /* Node stagger observer */
+    const nodeObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const node = entry.target as HTMLElement;
+            const index = parseInt(
+              node.style.getPropertyValue('--node-index'),
+              10
+            );
+            node.style.transitionDelay = `${200 + index * 80}ms`;
+            node.classList.add('arch-node-anim--visible');
+            nodeObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    nodeTargets.forEach((el) => nodeObserver.observe(el));
+  }
+
+  initArchitectureObserver();
+  document.addEventListener('astro:after-swap', initArchitectureObserver);
+</script>
+
+<style>
+  /* -------------------------------------------------- */
+  /*  Animation — section-level                          */
+  /* -------------------------------------------------- */
+  .arch-anim {
+    opacity: 0;
+    transform: translateY(1.875rem); /* 30px */
+    transition: opacity 500ms ease-out, transform 500ms ease-out;
+  }
+
+  .arch-anim--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* -------------------------------------------------- */
+  /*  Animation — nodes                                  */
+  /* -------------------------------------------------- */
+  .arch-node-anim {
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+  }
+
+  .arch-node-anim--visible {
+    opacity: 1;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Section                                            */
+  /* -------------------------------------------------- */
+  .arch {
+    padding: 6rem 1.5rem;
+  }
+
+  .arch__inner {
+    max-width: 56.25rem; /* 900px */
+    margin: 0 auto;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Header                                             */
+  /* -------------------------------------------------- */
+  .arch__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .arch__title {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: clamp(1.75rem, 3vw + 0.5rem, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem;
+  }
+
+  .arch__subtitle {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: clamp(0.9375rem, 1vw + 0.5rem, 1.0625rem);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    max-width: 31.25rem; /* 500px */
+    margin: 0 auto;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Pipeline card                                      */
+  /* -------------------------------------------------- */
+  .arch__card {
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 0.75rem; /* 12px */
+    padding: 2.5rem;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Pipeline list                                      */
+  /* -------------------------------------------------- */
+  .arch__pipeline {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Node                                               */
+  /* -------------------------------------------------- */
+  .arch__node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    position: relative;
+    min-width: 0;
+  }
+
+  .arch__icon {
+    color: var(--color-accent);
+    width: 1.75rem; /* 28px */
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .arch__node-title {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+  }
+
+  .arch__node-desc {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.8125rem; /* 13px */
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+  }
+
+  /* -------------------------------------------------- */
+  /*  Connectors — desktop (horizontal arrows)           */
+  /* -------------------------------------------------- */
+  .arch__node:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 0.875rem; /* vertically centered on icon (28/2 = 14px) */
+    left: calc(50% + 2rem);
+    width: calc(100% - 4rem);
+    height: 0.125rem; /* 2px */
+    background-color: var(--color-border-medium);
+  }
+
+  /* Arrow triangle */
+  .arch__node:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: calc(0.875rem - 0.25rem); /* center triangle on line */
+    left: calc(100% - 2rem - 0.375rem);
+    width: 0;
+    height: 0;
+    border-top: 0.3125rem solid transparent; /* 5px */
+    border-bottom: 0.3125rem solid transparent;
+    border-left: 0.375rem solid var(--color-border-medium); /* 6px */
+  }
+
+  /* -------------------------------------------------- */
+  /*  Responsive — mobile (<768px)                       */
+  /* -------------------------------------------------- */
+  @media (max-width: 767px) {
+    .arch__card {
+      padding: 2rem 1.5rem;
+    }
+
+    .arch__pipeline {
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .arch__node {
+      flex: none;
+      width: 100%;
+      padding-bottom: 2rem;
+    }
+
+    .arch__node:last-child {
+      padding-bottom: 0;
+    }
+
+    /* Vertical line */
+    .arch__node:not(:last-child)::after {
+      top: auto;
+      left: 50%;
+      bottom: 0;
+      width: 0.125rem;
+      height: 1.5rem;
+      transform: translateX(-50%);
+    }
+
+    /* Vertical arrow triangle */
+    .arch__node:not(:last-child)::before {
+      top: auto;
+      left: 50%;
+      bottom: -0.0625rem;
+      transform: translateX(-50%);
+      border-top: 0.375rem solid var(--color-border-medium);
+      border-bottom: none;
+      border-left: 0.3125rem solid transparent;
+      border-right: 0.3125rem solid transparent;
+    }
+  }
+
+  /* -------------------------------------------------- */
+  /*  Reduced motion                                     */
+  /* -------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .arch-anim,
+    .arch-node-anim {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>

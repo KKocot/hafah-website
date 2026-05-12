@@ -1,0 +1,45 @@
+---
+const links = [
+  { label: 'GitLab', href: 'https://gitlab.syncad.com/hive/hafah' },
+  { label: 'Hive Ecosystem', href: 'https://hive.io' },
+  { label: 'HAF Documentation', href: 'https://gitlab.syncad.com/hive/haf' },
+];
+---
+
+<footer class="border-t border-border-subtle">
+  <div class="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-12">
+    <!-- Title -->
+    <p class="font-mono text-sm text-text-tertiary">
+      HAfAH — Hive Account History API
+    </p>
+
+    <!-- Links -->
+    <nav
+      class="flex flex-col items-center gap-4 sm:flex-row sm:gap-2"
+      aria-label="Footer navigation"
+    >
+      {
+        links.map((link, i) => (
+          <>
+            <a
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm text-text-secondary transition-colors duration-200 hover:text-accent focus:outline-2 focus:outline-offset-2 focus:outline-accent"
+            >
+              {link.label}
+            </a>
+            {i < links.length - 1 && (
+              <span class="hidden text-text-tertiary sm:inline" aria-hidden="true">|</span>
+            )}
+          </>
+        ))
+      }
+    </nav>
+
+    <!-- License -->
+    <p class="text-center text-xs text-text-tertiary">
+      MIT License &middot; Part of the HAF ecosystem
+    </p>
+  </div>
+</footer>
