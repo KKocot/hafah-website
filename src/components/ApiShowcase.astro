@@ -320,6 +320,8 @@ const rpcEndpoints = [
     const tabs = document.querySelectorAll<HTMLButtonElement>('.api__tab');
     const panels = document.querySelectorAll<HTMLDivElement>('.api__panel');
 
+    const FADE_DURATION = 150; // ms — matches CSS transition
+
     // ---- Tab switching ----
     function activateTab(protocol: string) {
       tabs.forEach((tab) => {
@@ -328,12 +330,27 @@ const rpcEndpoints = [
         tab.setAttribute('aria-selected', String(isActive));
       });
 
-      panels.forEach((panel) => {
-        const panelId = panel.id; // panel-rest or panel-rpc
-        const matches = (protocol === 'rest' && panelId === 'panel-rest') ||
-                        (protocol === 'rpc' && panelId === 'panel-rpc');
-        panel.classList.toggle('hidden', !matches);
-      });
+      // Find the currently visible panel and the target panel
+      const currentPanel = document.querySelector<HTMLDivElement>('.api__panel:not(.hidden)');
+      const targetId = protocol === 'rest' ? 'panel-rest' : 'panel-rpc';
+      const targetPanel = document.querySelector<HTMLDivElement>(`#${targetId}`);
+
+      if (!currentPanel || !targetPanel || currentPanel === targetPanel) return;
+
+      // Crossfade: fade out current, then swap and fade in target
+      currentPanel.classList.add('is-fading');
+
+      setTimeout(() => {
+        currentPanel.classList.add('hidden');
+        currentPanel.classList.remove('is-fading');
+
+        targetPanel.classList.remove('hidden');
+        targetPanel.classList.add('is-fading');
+
+        // Force reflow so the browser registers opacity:0 before transitioning to 1
+        void targetPanel.offsetHeight;
+        targetPanel.classList.remove('is-fading');
+      }, FADE_DURATION);
     }
 
     tabs.forEach((tab) => {
@@ -360,23 +377,31 @@ const rpcEndpoints = [
       const preview = panel.querySelector('.api__preview');
       if (!preview) return;
 
-      // Update preview content
-      const titleEl = preview.querySelector('.api__preview-title');
-      const descEl = preview.querySelector('.api__preview-desc');
-      const codeBlocks = preview.querySelectorAll('.api__code code');
-
-      if (titleEl) titleEl.textContent = ep.title;
-      if (descEl) descEl.textContent = ep.desc;
-      if (codeBlocks[0]) codeBlocks[0].textContent = ep.curl;
-      if (codeBlocks[1]) codeBlocks[1].textContent = ep.response;
-
-      // Toggle active state on buttons
+      // Toggle active state on buttons immediately (no delay on list highlight)
       const buttons = panel.querySelectorAll<HTMLButtonElement>('.api__endpoint');
       buttons.forEach((btn, i) => {
         const isActive = i === index;
         btn.classList.toggle('is-active', isActive);
         btn.setAttribute('aria-selected', String(isActive));
       });
+
+      // Fade out, swap content, fade in
+      preview.classList.add('is-transitioning');
+
+      setTimeout(() => {
+        const titleEl = preview.querySelector('.api__preview-title');
+        const descEl = preview.querySelector('.api__preview-desc');
+        const codeBlocks = preview.querySelectorAll('.api__code code');
+
+        if (titleEl) titleEl.textContent = ep.title;
+        if (descEl) descEl.textContent = ep.desc;
+        if (codeBlocks[0]) codeBlocks[0].textContent = ep.curl;
+        if (codeBlocks[1]) codeBlocks[1].textContent = ep.response;
+
+        // Force reflow then fade back in
+        void preview.offsetHeight;
+        preview.classList.remove('is-transitioning');
+      }, FADE_DURATION);
     }
 
     panels.forEach((panel) => {
@@ -545,6 +570,12 @@ const rpcEndpoints = [
   /* -------------------------------------------------- */
   .api__panel {
     margin-bottom: 0;
+    opacity: 1;
+    transition: opacity 150ms ease;
+  }
+
+  .api__panel.is-fading {
+    opacity: 0;
   }
 
   .api__panel.hidden {
@@ -648,6 +679,12 @@ const rpcEndpoints = [
     padding: 1.5rem; /* 24px */
     background-color: var(--color-bg-primary);
     min-height: 28rem; /* stabilise height across endpoint switches */
+    opacity: 1;
+    transition: opacity 150ms ease;
+  }
+
+  .api__preview.is-transitioning {
+    opacity: 0;
   }
 
   .api__preview-title {
@@ -769,6 +806,11 @@ const rpcEndpoints = [
     .api-anim {
       opacity: 1;
       transform: none;
+      transition: none;
+    }
+
+    .api__preview,
+    .api__panel {
       transition: none;
     }
   }
