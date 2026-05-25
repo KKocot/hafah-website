@@ -1,68 +1,79 @@
 ---
 const features = [
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>`,
     title: 'Pure SQL',
-    description: 'Entire business logic in PostgreSQL/PL/pgSQL. No application layer, no middleware — just PostgREST translating HTTP to SQL.',
+    desc: 'Business logic lives entirely in PostgreSQL functions using PL/pgSQL. No middleware layer, no ORM overhead — just direct SQL execution.',
   },
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>`,
     title: 'Zero Replay',
-    description: 'Deploy in minutes, not days. Reads directly from HAF base tables — no blockchain replay required.',
+    desc: 'Deploy in minutes, not hours. HAFAh reads directly from HAF’s shared base tables, eliminating the need for costly data replay.',
   },
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>`,
     title: 'Dual API',
-    description: "JSON-RPC 2.0 + REST in a single deployment. Full backwards compatibility with Hive's condenser_api.",
+    desc: 'JSON-RPC 2.0 and REST endpoints served from a single deployment. One codebase, two protocols, zero duplication.',
   },
   {
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
     title: 'Smart Caching',
-    description: 'Irreversible blocks cached for 1 year. Reversible data refreshed every 2 seconds. Automatic cache strategy.',
+    desc: 'Irreversible blocks are cached for up to a year. Reversible data refreshes every 2 seconds. Smart headers let proxies and CDNs do the heavy lifting.',
   },
 ];
 ---
 
-<section id="features" class="features-section">
-  <div class="features-container">
-    <div class="features-header">
-      <h2 class="features-title">Built for Production</h2>
-      <p class="features-subtitle">
+<section id="features" class="fp__section" aria-labelledby="fp-heading">
+  <div class="fp__container">
+    <header class="fp__header" data-fp-animate>
+      <h2 id="fp-heading" class="fp__title">Built for Production</h2>
+      <p class="fp__subtitle">
         Everything you need to run a Hive account history node
       </p>
-    </div>
+    </header>
 
-    <div class="features-grid">
-      {features.map((feature, index) => (
-        <div
-          class="feature-card"
-          style={`transition-delay: ${index * 50}ms;`}
-        >
-          <div class="feature-icon" set:html={feature.icon} />
-          <h3 class="feature-card-title">{feature.title}</h3>
-          <p class="feature-card-description">{feature.description}</p>
+    {features.map((feature, index) => (
+      <Fragment>
+        <hr
+          class="fp__divider"
+          role="separator"
+          aria-hidden="true"
+          data-fp-animate
+          data-fp-index={index}
+        />
+        <div class="fp__feature" data-fp-animate data-fp-index={index}>
+          <h3 class="fp__name">{feature.title}</h3>
+          <p class="fp__desc">{feature.desc}</p>
         </div>
-      ))}
-    </div>
+      </Fragment>
+    ))}
   </div>
 </section>
 
 <style>
-  .features-section {
+  .fp__section {
     padding: 6rem 1.5rem;
   }
 
-  .features-container {
-    max-width: 56.25rem; /* 900px */
+  .fp__container {
+    max-width: 56.25rem;
     margin: 0 auto;
   }
 
-  .features-header {
+  /* --- Header --- */
+  .fp__header {
     text-align: center;
     margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 500ms ease-out,
+      transform 500ms ease-out;
   }
 
-  .features-title {
+  .fp__header.fp--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .fp__title {
+    font-family: var(--font-sans, 'Inter', sans-serif);
     font-size: clamp(1.75rem, 4vw, 3rem);
     font-weight: 600;
     letter-spacing: -0.01em;
@@ -71,102 +82,139 @@ const features = [
     line-height: 1.1;
   }
 
-  .features-subtitle {
-    font-size: 1.0625rem; /* 17px */
+  .fp__subtitle {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 1.0625rem;
     color: var(--color-text-secondary);
-    max-width: 31.25rem; /* 500px */
+    max-width: 31.25rem;
     margin: 0 auto;
     line-height: 1.5;
   }
 
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+  /* --- Divider --- */
+  .fp__divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(245, 158, 11, 0.3) 20%,
+      rgba(245, 158, 11, 0.15) 80%,
+      transparent 100%
+    );
+    margin: 2rem 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 400ms ease-out;
   }
 
-  .feature-card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: 0.75rem; /* 12px */
-    padding: 2rem;
+  .fp__divider.fp--visible {
+    transform: scaleX(1);
+  }
+
+  /* --- Feature --- */
+  .fp__feature {
+    padding: 0.5rem 0;
     opacity: 0;
-    transform: translateY(1.875rem); /* 30px */
+    transform: translateY(1.25rem);
     transition:
       opacity 400ms ease-out,
-      transform 400ms ease-out,
-      border-color 300ms ease,
-      box-shadow 300ms ease;
+      transform 400ms ease-out;
   }
 
-  .feature-card.animate-in {
+  .fp__feature.fp--visible {
     opacity: 1;
     transform: translateY(0);
   }
 
-  .feature-card:hover {
-    border-color: var(--color-border-medium);
-    transform: translateY(-0.125rem); /* -2px */
-  }
-
-  .feature-card.animate-in:hover {
-    transform: translateY(-0.125rem);
-  }
-
-  .feature-icon {
-    color: var(--color-accent);
-    margin-bottom: 1rem;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .feature-card-title {
-    font-size: 1.375rem; /* 22px */
+  .fp__name {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--color-text-primary);
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
     line-height: 1.2;
   }
 
-  .feature-card-description {
-    font-size: 0.9375rem; /* 15px */
-    line-height: 1.6;
+  .fp__desc {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 1rem;
+    font-weight: 400;
     color: var(--color-text-secondary);
+    line-height: 1.7;
     margin: 0;
   }
 
+  /* --- Mobile --- */
   @media (max-width: 768px) {
-    .features-grid {
-      grid-template-columns: 1fr;
+    .fp__section {
+      padding: 4rem 1.25rem;
+    }
+
+    .fp__divider {
+      margin: 1.5rem 0;
     }
   }
 
+  /* --- Reduced motion --- */
   @media (prefers-reduced-motion: reduce) {
-    .feature-card {
+    .fp__header,
+    .fp__feature {
       opacity: 1;
       transform: none;
-      transition:
-        border-color 300ms ease,
-        box-shadow 300ms ease;
+      transition: none;
+    }
+
+    .fp__divider {
+      transform: scaleX(1);
+      transition: none;
     }
   }
 </style>
 
 <script>
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
+  function initFeaturesProduction() {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
 
-  document.querySelectorAll('.feature-card').forEach((card) => observer.observe(card));
+    const animatable =
+      document.querySelectorAll<HTMLElement>('[data-fp-animate]');
+
+    if (prefersReducedMotion) {
+      animatable.forEach((el) => el.classList.add('fp--visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const revealed: HTMLElement[] = [];
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            revealed.push(entry.target as HTMLElement);
+            observer.unobserve(entry.target);
+          }
+        });
+
+        revealed.sort((a, b) => {
+          const ai = parseInt(a.dataset.fpIndex ?? '-1', 10);
+          const bi = parseInt(b.dataset.fpIndex ?? '-1', 10);
+          return ai - bi;
+        });
+
+        revealed.forEach((el, i) => {
+          setTimeout(() => {
+            el.classList.add('fp--visible');
+          }, i * 100);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    animatable.forEach((el) => observer.observe(el));
+  }
+
+  initFeaturesProduction();
+  document.addEventListener('astro:after-swap', initFeaturesProduction);
 </script>
