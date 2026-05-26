@@ -1,5 +1,4 @@
 ---
-const currentYear = new Date().getFullYear();
 ---
 
 <footer class="tmux-status" role="contentinfo">
@@ -13,9 +12,6 @@ const currentYear = new Date().getFullYear();
         aria-label="hafah — repository on GitLab"
         >[hafah]</a
       ></span
-    ><span class="tmux-status__sep" aria-hidden="true">│</span><span
-      class="tmux-status__segment"
-      >&copy; {currentYear}</span
     ><span class="tmux-status__sep" aria-hidden="true">│</span><a
       href="https://opensource.org/licenses/MIT"
       target="_blank"
@@ -29,10 +25,21 @@ const currentYear = new Date().getFullYear();
       rel="noopener noreferrer"
       class="tmux-status__link"
       aria-label="Hive blockchain ecosystem — opens in new tab"
-      >built for <span class="tmux-status__hive">hive</span></a
-    ><span class="tmux-status__sep" aria-hidden="true">│</span><span
-      class="tmux-status__dot"
-      aria-label="Status: online">●</span
+      >Hive</a
+    ><span class="tmux-status__sep" aria-hidden="true">│</span><a
+      href="https://haf-website-nine.vercel.app/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="tmux-status__link"
+      aria-label="HAF — opens in new tab"
+      >HAF</a
+    ><span class="tmux-status__sep" aria-hidden="true">│</span><a
+      href="https://blockchain-wares.vercel.app"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="tmux-status__link"
+      aria-label="Blockchain Wares — opens in new tab"
+      >Blockchain Wares</a
     >
   </div>
 </footer>
@@ -86,17 +93,6 @@ const currentYear = new Date().getFullYear();
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
     border-radius: 2px;
-  }
-
-  .tmux-status__hive {
-    color: var(--color-accent);
-    font-weight: 600;
-  }
-
-  .tmux-status__dot {
-    color: #22c55e;
-    font-size: 0.625rem;
-    line-height: 1;
   }
 
   @media (max-width: 40rem) {
